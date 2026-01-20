@@ -70,6 +70,7 @@ def register_callbacks(app, df_summary, df_timeseries):
         # Metric card outputs
         Output('cities-value', 'children'),
         Output('avg-pm25-value', 'children'),
+        Output('vienna-pm25-value', 'children'),
         Output('selected-value', 'children'),
         # Filter inputs
         Input('region-filter', 'value'),
@@ -163,12 +164,17 @@ def register_callbacks(app, df_summary, df_timeseries):
         # Update metric cards
         num_cities = str(len(df_filtered))
         avg_pm25 = f"{df_filtered['pm25'].mean():.1f} μg/m³"
+
+        # Vienna PM2.5
+        vienna_data = df_filtered[df_filtered['city'] == 'Vienna']
+        vienna_pm25 = f"{vienna_data['pm25'].values[0]:.1f} μg/m³" if len(vienna_data) > 0 else "--"
+
         selected_text = f"{len(selected)} selected" if selected else "All Cities"
 
         return (
             map_fig, timeseries_fig, boxplot_fig, scatter_fig,
             correlation_fig, comparison_fig, parallel_fig,
-            num_cities, avg_pm25, selected_text
+            num_cities, avg_pm25, vienna_pm25, selected_text
         )
 
     # =========================================================================

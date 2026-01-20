@@ -3,6 +3,12 @@ Dashboard Layout for Urban Environmental Quality Dashboard
 
 Defines the HTML/CSS structure of the dashboard using Dash components.
 Layout is designed to fit on one screen (no scrolling) with professional styling.
+
+Refined for Report Stage:
+- Removed technical visualizations (correlation heatmap, parallel coordinates)
+- Added Key Insights panel for stakeholder communication
+- Explicit brushing & linking explanation
+- Cleaner 2x2 chart grid + insights layout
 """
 
 from dash import html, dcc
@@ -16,12 +22,24 @@ from dashboard.styles import (
 
 
 def create_header():
-    """Create the dashboard header with title and subtitle."""
+    """Create the dashboard header with title, subtitle, and interaction hint."""
     return html.Div([
         html.H1("Urban Environmental Quality Dashboard",
                 style=TITLE_STYLE),
         html.P("Analyzing Air Quality and Livability Across World Cities - Vienna Focus",
                style=SUBTITLE_STYLE),
+        # Brushing & Linking explanation
+        html.P([
+            html.Strong("Interactive: ", style={'color': COLORS['accent']}),
+            "This dashboard supports coordinated brushing & linking — selecting cities, clusters, or points in any chart ",
+            "immediately highlights the same data across all other visualizations."
+        ], style={
+            'fontSize': '12px',
+            'color': 'white',  # White for visibility on dark header
+            'marginTop': '5px',
+            'marginBottom': '0',
+            'fontStyle': 'italic',
+        }),
     ], style=HEADER_STYLE)
 
 
@@ -52,10 +70,9 @@ def create_metrics_row():
     return dbc.Row([
         dbc.Col(create_metric_card('cities', 'Cities Analyzed', '31'), width=2),
         dbc.Col(create_metric_card('avg-pm25', 'Avg PM2.5', '--'), width=2),
-        dbc.Col(create_metric_card('vienna-rank', 'Vienna Rank', '--'), width=2),
-        dbc.Col(create_metric_card('vienna-cluster', 'Vienna Cluster', 'Clean & Green'), width=2),
-        dbc.Col(create_metric_card('time-range', 'Time Range', '2020-2023'), width=2),
-        dbc.Col(create_metric_card('selected', 'Selected', 'All Cities'), width=2),
+        dbc.Col(create_metric_card('vienna-pm25', 'Vienna PM2.5', '--'), width=2),
+        dbc.Col(create_metric_card('vienna-cluster', 'Vienna Cluster', 'Clean & Green'), width=3),
+        dbc.Col(create_metric_card('selected', 'Selected', 'All Cities'), width=3),
     ], className='mb-3', style={'marginLeft': '10px', 'marginRight': '10px'})
 
 
@@ -126,27 +143,6 @@ def create_filter_panel():
                     dbc.Button("Reset All", id='btn-reset',
                                size='sm', color='secondary',
                                className='me-1', style={'fontSize': '10px'}),
-                    # Help button with popover
-                    html.Span([
-                        dbc.Button("?", id='btn-help', size='sm', color='info',
-                                   style={'fontSize': '10px', 'borderRadius': '50%',
-                                          'width': '22px', 'height': '22px', 'padding': '0'}),
-                        dbc.Popover([
-                            dbc.PopoverHeader("Interaction Tips", style={'fontWeight': 'bold'}),
-                            dbc.PopoverBody([
-                                html.P([html.Strong("Click"), " a city on the map to highlight it across all charts"],
-                                       style={'marginBottom': '5px', 'fontSize': '11px'}),
-                                html.P([html.Strong("Click"), " a bar in the comparison chart to select that city"],
-                                       style={'marginBottom': '5px', 'fontSize': '11px'}),
-                                html.P([html.Strong("Click"), " a box plot to select all cities in that cluster"],
-                                       style={'marginBottom': '5px', 'fontSize': '11px'}),
-                                html.P([html.Strong("Lasso select"), " on the scatter plot to highlight multiple cities"],
-                                       style={'marginBottom': '5px', 'fontSize': '11px'}),
-                                html.P([html.Strong("Click again"), " to deselect a city"],
-                                       style={'marginBottom': '0', 'fontSize': '11px'}),
-                            ]),
-                        ], target='btn-help', trigger='hover', placement='bottom'),
-                    ]),
                 ]),
             ], width=3),
         ]),
@@ -157,6 +153,51 @@ def create_filter_panel():
         'marginBottom': '15px',
         'marginLeft': '15px',
         'marginRight': '15px',
+    })
+
+
+def create_insights_panel():
+    """Create the Key Insights panel with main findings."""
+    insight_style = {
+        'fontSize': '13px',
+        'color': COLORS['text'],
+        'marginBottom': '8px',
+        'paddingLeft': '15px',
+        'borderLeft': f'3px solid {COLORS["primary"]}',
+    }
+
+    return html.Div([
+        html.H4("Key Insights", style={
+            'fontSize': '16px',
+            'fontWeight': '600',
+            'color': COLORS['text'],
+            'marginBottom': '15px',
+            'borderBottom': f'2px solid {COLORS["primary"]}',
+            'paddingBottom': '8px',
+        }),
+        html.Div([
+            html.P([
+                html.Strong("Vienna's Clean Performance: ", style={'color': COLORS['accent']}),
+                "Vienna consistently belongs to the Clean & Green cluster with PM2.5 levels below the global city average throughout 2020-2023."
+            ], style=insight_style),
+            html.P([
+                html.Strong("Density Paradox: ", style={'color': COLORS['primary']}),
+                "Higher population density generally correlates with worse air quality, but Vienna outperforms many cities of similar density."
+            ], style=insight_style),
+            html.P([
+                html.Strong("Green Space Effect: ", style={'color': '#27ae60'}),
+                "Cities with more green space tend to show lower PM2.5 and AQI values, supporting urban greening policies."
+            ], style=insight_style),
+            html.P([
+                html.Strong("Industrial Impact: ", style={'color': '#e74c3c'}),
+                "Industrial and high-traffic cities (Delhi, Cairo, Beijing) exhibit significantly higher pollution levels than European counterparts."
+            ], style=insight_style),
+        ]),
+    ], style={
+        'backgroundColor': COLORS['card_bg'],
+        'padding': '20px',
+        'borderRadius': '8px',
+        'height': '100%',
     })
 
 
@@ -181,16 +222,22 @@ def create_main_layout():
         'color': COLORS['text'],
     }
 
+    hint_style = {
+        'fontSize': '10px',
+        'color': COLORS['text_light'],
+        'fontStyle': 'italic',
+    }
+
     return html.Div([
         # Store components for state management (brushing & linking)
         dcc.Store(id='selected-cities-store', data=[]),
         dcc.Store(id='selected-cluster-store', data=None),
         dcc.Store(id='filtered-data-store', data=None),
 
-        # Header
+        # Header with brushing & linking explanation
         create_header(),
 
-        # Metrics Row
+        # Metrics Row (Row 1: KPI cards overview)
         create_metrics_row(),
 
         # Filter Panel
@@ -198,25 +245,83 @@ def create_main_layout():
 
         # Main Chart Grid
         html.Div([
-            # Top Row: Map, Time Series, Box Plots
+            # Row 2: World Map + PM2.5 Trends (spatial + temporal context)
             dbc.Row([
-                # Map Chart
+                # Map Chart (larger)
                 dbc.Col([
                     html.Div([
                         html.Div([
                             html.Span('Geographic Distribution by PM2.5', style=title_style),
+                            html.Span(' (click to select)', style=hint_style),
                         ], style=header_style),
-                        dcc.Graph(id='map-chart', config={'displayModeBar': False}, style={'height': '280px'}),
+                        dcc.Graph(id='map-chart', config={'displayModeBar': False}, style={'height': '380px'}),
                     ], style=chart_card_style),
-                ], width=4),
+                ], width=6),
 
-                # Time Series Chart
+                # Time Series Chart with annotation
                 dbc.Col([
                     html.Div([
                         html.Div([
                             html.Span('PM2.5 Trends Over Time', style=title_style),
                         ], style=header_style),
-                        dcc.Graph(id='timeseries-chart', config={'displayModeBar': False}, style={'height': '280px'}),
+                        dcc.Graph(id='timeseries-chart', config={'displayModeBar': False}, style={'height': '300px'}),
+                        # Chart annotation/caption
+                        html.P(
+                            "Vienna's PM2.5 levels remain consistently below both the global and cluster averages, with only short seasonal increases.",
+                            style={
+                                'fontSize': '11px',
+                                'color': COLORS['text_light'],
+                                'fontStyle': 'italic',
+                                'marginTop': '5px',
+                                'marginBottom': '0',
+                                'textAlign': 'center',
+                            }
+                        ),
+                    ], style=chart_card_style),
+                ], width=6),
+            ], className='mb-3 g-3'),
+
+            # Row 3: Scatter + Comparison + Box Plot (explanation + comparison)
+            dbc.Row([
+                # Scatter Plot with dropdown
+                dbc.Col([
+                    html.Div([
+                        html.Div([
+                            html.Span('Density vs Air Quality', style=title_style),
+                            dcc.Dropdown(
+                                id='scatter-x-var',
+                                options=[
+                                    {'label': 'Pop. Density', 'value': 'population_density'},
+                                    {'label': 'Traffic', 'value': 'traffic_intensity'},
+                                    {'label': 'Green Space', 'value': 'green_space_pct'},
+                                ],
+                                value='population_density',
+                                clearable=False,
+                                style={'width': '110px', 'fontSize': '10px'},
+                            ),
+                        ], style=header_style),
+                        dcc.Graph(id='scatter-chart', config={'displayModeBar': False}, style={'height': '280px'}),
+                    ], style=chart_card_style),
+                ], width=4),
+
+                # City Comparison Chart with dropdown
+                dbc.Col([
+                    html.Div([
+                        html.Div([
+                            html.Span('City Comparison', style=title_style),
+                            dcc.Dropdown(
+                                id='comparison-indicator',
+                                options=[
+                                    {'label': 'PM2.5', 'value': 'pm25'},
+                                    {'label': 'Green Space', 'value': 'green_space_pct'},
+                                    {'label': 'AQI', 'value': 'air_quality_index'},
+                                ],
+                                value='pm25',
+                                clearable=False,
+                                style={'width': '110px', 'fontSize': '11px'},
+                            ),
+                        ], style=header_style),
+                        dcc.Graph(id='comparison-chart', config={'displayModeBar': False}, style={'height': '280px'}),
                     ], style=chart_card_style),
                 ], width=4),
 
@@ -241,74 +346,14 @@ def create_main_layout():
                         dcc.Graph(id='boxplot-chart', config={'displayModeBar': False}, style={'height': '280px'}),
                     ], style=chart_card_style),
                 ], width=4),
-            ], className='mb-2 g-2'),
+            ], className='mb-3 g-3'),
 
-            # Middle Row: Scatter, Correlation, Comparison
-            dbc.Row([
-                # Scatter Plot with dropdown
-                dbc.Col([
-                    html.Div([
-                        html.Div([
-                            html.Span('Density vs Air Quality', style=title_style),
-                            dcc.Dropdown(
-                                id='scatter-x-var',
-                                options=[
-                                    {'label': 'Pop. Density', 'value': 'population_density'},
-                                    {'label': 'Traffic', 'value': 'traffic_intensity'},
-                                    {'label': 'Green Space', 'value': 'green_space_pct'},
-                                ],
-                                value='population_density',
-                                clearable=False,
-                                style={'width': '110px', 'fontSize': '10px'},
-                            ),
-                        ], style=header_style),
-                        dcc.Graph(id='scatter-chart', config={'displayModeBar': False}, style={'height': '280px'}),
-                    ], style=chart_card_style),
-                ], width=4),
-
-                # Correlation Chart
-                dbc.Col([
-                    html.Div([
-                        html.Div([
-                            html.Span('Variable Correlations', style=title_style),
-                        ], style=header_style),
-                        dcc.Graph(id='correlation-chart', config={'displayModeBar': False}, style={'height': '280px'}),
-                    ], style=chart_card_style),
-                ], width=4),
-
-                # Comparison Chart with dropdown
-                dbc.Col([
-                    html.Div([
-                        html.Div([
-                            html.Span('Vienna vs Peer Cities', style=title_style),
-                            dcc.Dropdown(
-                                id='comparison-indicator',
-                                options=[
-                                    {'label': 'PM2.5', 'value': 'pm25'},
-                                    {'label': 'Green Space', 'value': 'green_space_pct'},
-                                    {'label': 'AQI', 'value': 'air_quality_index'},
-                                ],
-                                value='pm25',
-                                clearable=False,
-                                style={'width': '110px', 'fontSize': '11px'},
-                            ),
-                        ], style=header_style),
-                        dcc.Graph(id='comparison-chart', config={'displayModeBar': False}, style={'height': '280px'}),
-                    ], style=chart_card_style),
-                ], width=4),
-            ], className='mb-2 g-2'),
-
-            # Bottom Row: Parallel Coordinates (full width)
+            # Row 4: Key Insights Panel (full width)
             dbc.Row([
                 dbc.Col([
-                    html.Div([
-                        html.Div([
-                            html.Span('Multi-Dimensional City Comparison - Vienna Highlighted in Orange', style=title_style),
-                        ], style=header_style),
-                        dcc.Graph(id='parallel-chart', config={'displayModeBar': False}, style={'height': '180px'}),
-                    ], style=chart_card_style),
+                    create_insights_panel(),
                 ], width=12),
-            ], className='g-2'),
+            ], className='g-3'),
 
         ], style={
             'padding': '0 15px',
@@ -316,15 +361,20 @@ def create_main_layout():
 
         # Footer
         html.Div([
-            html.Span("Data: Real air quality data from OpenAQ for 31 world cities (2020-2023) | ",
+            html.Span("Data: Real air quality data from OpenAQ for 31 world cities (2020-2023)",
                       style={'color': COLORS['text_light'], 'fontSize': '11px'}),
-            html.Span("Click on any chart to highlight cities across all visualizations",
-                      style={'color': COLORS['primary'], 'fontSize': '11px', 'fontWeight': '500'}),
         ], style={
             'textAlign': 'center',
             'padding': '10px',
             'marginTop': '10px',
         }),
+
+        # Hidden components to maintain callback compatibility
+        # (These charts are removed from display but callbacks still reference them)
+        html.Div([
+            dcc.Graph(id='correlation-chart', style={'display': 'none'}),
+            dcc.Graph(id='parallel-chart', style={'display': 'none'}),
+        ], style={'display': 'none'}),
 
     ], style={
         'backgroundColor': COLORS['background'],

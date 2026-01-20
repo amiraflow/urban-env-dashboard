@@ -43,17 +43,48 @@ def create_map(df, selected_cities=None, highlight_vienna=True):
     """
     df = df.copy()
 
-    # Determine opacity based on selection
+    # Handle empty dataframe
+    if len(df) == 0:
+        fig = go.Figure()
+        fig.update_layout(
+            geo=dict(showland=True, landcolor='#F5F5F5'),
+            margin=dict(l=0, r=0, t=30, b=0),
+            height=280,
+            annotations=[dict(text="No data available", showarrow=False, x=0.5, y=0.5)]
+        )
+        return fig
+
+    # Drop rows with missing coordinates or pm25
+    df = df.dropna(subset=['lat', 'lon', 'pm25', 'population'])
+
+    # Handle empty dataframe after cleaning
+    if len(df) == 0:
+        fig = go.Figure()
+        fig.update_layout(
+            geo=dict(showland=True, landcolor='#F5F5F5'),
+            margin=dict(l=0, r=0, t=30, b=0),
+            height=280,
+            annotations=[dict(text="No data available", showarrow=False, x=0.5, y=0.5)]
+        )
+        return fig
+
+    # Determine opacity and marker size based on selection
+    # Selected cities get full opacity and larger markers for strong visual feedback
     if selected_cities and len(selected_cities) > 0:
         df['opacity'] = df['city'].apply(
-            lambda x: 1.0 if x in selected_cities or x == 'Vienna' else 0.2
+            lambda x: 1.0 if x in selected_cities or x == 'Vienna' else 0.15
+        )
+        df['size_boost'] = df['city'].apply(
+            lambda x: 1.5 if x in selected_cities else 1.0
         )
     else:
         df['opacity'] = 0.8
+        df['size_boost'] = 1.0
 
     # Create size column based on population (area-proportional scaling)
     # Using sqrt to make marker AREA proportional to population, not diameter
-    df['marker_size'] = 6 + np.sqrt(df['population'] / df['population'].max()) * 12
+    # Apply size boost for selected cities
+    df['marker_size'] = (6 + np.sqrt(df['population'] / df['population'].max()) * 12) * df['size_boost']
 
     # Separate Vienna for special styling
     vienna = df[df['city'] == 'Vienna']
@@ -61,44 +92,45 @@ def create_map(df, selected_cities=None, highlight_vienna=True):
 
     fig = go.Figure()
 
-    # Add other cities
-    fig.add_trace(go.Scattergeo(
-        lon=other_cities['lon'],
-        lat=other_cities['lat'],
-        mode='markers',
-        marker=dict(
-            size=other_cities['marker_size'],
-            color=other_cities['pm25'],
-            # Using Viridis - perceptually uniform and colorblind-friendly
-            colorscale='Viridis',
-            reversescale=True,  # Yellow = clean (low PM2.5), Purple = polluted (high)
-            cmin=5,
-            cmax=80,
-            opacity=other_cities['opacity'].tolist(),
-            line=dict(width=1, color='white'),
-            colorbar=dict(
-                title=dict(text='PM2.5<br>(μg/m³)', font=dict(size=11)),
-                thickness=15,
-                len=0.5,
-                y=0.5,
-            )
-        ),
-        text=other_cities.apply(
-            lambda r: f"<b>{r['city']}</b>, {r['country']}<br>" +
-                      f"PM2.5: {r['pm25']:.1f} μg/m³<br>" +
-                      f"Cluster: {CLUSTER_NAMES.get(r['cluster'], r['cluster'])}",
-            axis=1
-        ),
-        hoverinfo='text',
-        customdata=other_cities['city'],
-        name='Cities'
-    ))
+    # Add other cities (only if there are any)
+    if len(other_cities) > 0:
+        fig.add_trace(go.Scattergeo(
+            lon=other_cities['lon'].tolist(),
+            lat=other_cities['lat'].tolist(),
+            mode='markers',
+            marker=dict(
+                size=other_cities['marker_size'].tolist(),
+                color=other_cities['pm25'].tolist(),
+                # Using Viridis - perceptually uniform and colorblind-friendly
+                colorscale='Viridis',
+                reversescale=True,  # Yellow = clean (low PM2.5), Purple = polluted (high)
+                cmin=5,
+                cmax=80,
+                opacity=other_cities['opacity'].tolist(),
+                line=dict(width=1, color='white'),
+                colorbar=dict(
+                    title=dict(text='PM2.5<br>(μg/m³)', font=dict(size=11)),
+                    thickness=15,
+                    len=0.5,
+                    y=0.5,
+                )
+            ),
+            text=other_cities.apply(
+                lambda r: f"<b>{r['city']}</b>, {r['country']}<br>" +
+                          f"PM2.5: {r['pm25']:.1f} μg/m³<br>" +
+                          f"Cluster: {CLUSTER_NAMES.get(r['cluster'], r['cluster'])}",
+                axis=1
+            ).tolist(),
+            hoverinfo='text',
+            customdata=other_cities['city'].tolist(),
+            name='Cities'
+        ))
 
     # Add Vienna with special styling
     if highlight_vienna and len(vienna) > 0:
         fig.add_trace(go.Scattergeo(
-            lon=vienna['lon'],
-            lat=vienna['lat'],
+            lon=vienna['lon'].tolist(),
+            lat=vienna['lat'].tolist(),
             mode='markers+text',
             marker=dict(
                 size=18,
@@ -114,9 +146,9 @@ def create_map(df, selected_cities=None, highlight_vienna=True):
                           f"PM2.5: {r['pm25']:.1f} μg/m³<br>" +
                           f"Cluster: {CLUSTER_NAMES.get(r['cluster'], r['cluster'])}",
                 axis=1
-            ),
+            ).tolist(),
             hoverinfo='text',
-            customdata=vienna['city'],
+            customdata=vienna['city'].tolist(),
             name='Vienna'
         ))
 
@@ -134,11 +166,11 @@ def create_map(df, selected_cities=None, highlight_vienna=True):
             center=dict(lat=30, lon=10),
             projection_scale=1.2,
         ),
-        margin=dict(l=0, r=0, t=30, b=0),
+        margin=dict(l=0, r=0, t=10, b=0),
         paper_bgcolor=COLORS['background'],
         font=dict(family=FONTS['family'], size=FONTS['body_size']),
         showlegend=False,
-        height=280,
+        uirevision='constant',  # Prevent layout changes on data updates
     )
 
     return fig
@@ -185,13 +217,13 @@ def create_time_series(df_timeseries, df_summary, selected_cities=None):
     # Vienna data
     vienna_data = df_ts[df_ts['city'] == 'Vienna']
 
-    # Add global average (bottom layer)
+    # Add global average (bottom layer) - more visible color
     fig.add_trace(go.Scatter(
         x=global_avg['date'],
         y=global_avg['pm25'],
         mode='lines',
         name='Global Average',
-        line=dict(color=COLORS['grid'], width=1.5, dash='dash'),
+        line=dict(color='#7f8c8d', width=2, dash='dash'),  # Darker gray, thicker line
         hovertemplate='Global Avg: %{y:.1f} μg/m³<extra></extra>'
     ))
 
@@ -291,7 +323,7 @@ def create_cluster_boxplot(df, indicator='pm25', selected_cluster=None):
             marker_color=CLUSTER_COLORS[cluster_id],
             opacity=opacity,
             boxpoints='outliers',
-            hovertemplate=f'{cluster_name}<br>{indicator_labels.get(indicator, indicator)}: %{{y:.1f}}<extra></extra>'
+            hoverinfo='skip',  # Disable default hover on box
         ))
 
     # Mark Vienna's position
@@ -352,16 +384,22 @@ def create_scatter_plot(df, selected_cities=None, x_var='population_density', y_
 
     df = df.copy()
 
-    # Determine opacity based on selection (size is constant - not encoding data)
+    # Determine opacity and size based on selection
+    # Selected cities get full opacity and larger size for emphasis
     if selected_cities and len(selected_cities) > 0:
         df['opacity'] = df['city'].apply(
-            lambda x: 1.0 if x in selected_cities or x == 'Vienna' else 0.15
+            lambda x: 1.0 if x in selected_cities or x == 'Vienna' else 0.12
+        )
+        df['size'] = df['city'].apply(
+            lambda x: 12 if x in selected_cities else 7
+        )
+        df['line_width'] = df['city'].apply(
+            lambda x: 2 if x in selected_cities else 0.5
         )
     else:
         df['opacity'] = 0.8
-
-    # Constant marker size (not encoding any variable)
-    df['size'] = 9
+        df['size'] = 9
+        df['line_width'] = 0.5
 
     fig = go.Figure()
 
@@ -370,18 +408,18 @@ def create_scatter_plot(df, selected_cities=None, x_var='population_density', y_
         cluster_data = df[(df['cluster'] == cluster_id) & (df['city'] != 'Vienna')]
 
         fig.add_trace(go.Scatter(
-            x=cluster_data[x_var],
-            y=cluster_data[y_var],
+            x=cluster_data[x_var].tolist(),
+            y=cluster_data[y_var].tolist(),
             mode='markers',
             name=CLUSTER_NAMES.get(cluster_id, f'Cluster {cluster_id}'),
             marker=dict(
-                size=cluster_data['size'],
+                size=cluster_data['size'].tolist(),
                 color=CLUSTER_COLORS[cluster_id],
                 opacity=cluster_data['opacity'].tolist(),
-                line=dict(width=0.5, color='white')
+                line=dict(width=cluster_data['line_width'].tolist(), color='black')
             ),
-            text=cluster_data['city'],
-            customdata=cluster_data['city'],
+            text=cluster_data['city'].tolist(),
+            customdata=cluster_data['city'].tolist(),
             hovertemplate='<b>%{text}</b><br>' +
                           f'{var_labels.get(x_var, x_var)}: %{{x:,.0f}}<br>' +
                           f'{var_labels.get(y_var, y_var)}: %{{y:.1f}}<extra></extra>'

@@ -1,0 +1,199 @@
+/*
+ * Custom CSS for Urban Environmental Quality Dashboard
+ * Professional, clean styling with high data-ink ratio
+ */
+
+/* Global styles */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #FFFFFF;
+    margin: 0;
+    padding: 0;
+}
+
+/* Remove default margins */
+.container-fluid {
+    padding: 0;
+}
+
+/* Card styling */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Dropdown styling */
+.Select-control {
+    border-radius: 4px !important;
+    border-color: #DDDDDD !important;
+}
+
+.Select-control:hover {
+    border-color: #2E5C8A !important;
+}
+
+.Select-value-label {
+    color: #333333 !important;
+}
+
+/* Range slider styling */
+.rc-slider-track {
+    background-color: #2E5C8A !important;
+}
+
+.rc-slider-handle {
+    border-color: #2E5C8A !important;
+}
+
+.rc-slider-handle:hover,
+.rc-slider-handle:active {
+    border-color: #5B8DB8 !important;
+    box-shadow: 0 0 5px #5B8DB8 !important;
+}
+
+/* Checklist styling */
+.form-check-input:checked {
+    background-color: #2E5C8A;
+    border-color: #2E5C8A;
+}
+
+/* Button styling */
+.btn-outline-primary {
+    color: #2E5C8A;
+    border-color: #2E5C8A;
+}
+
+.btn-outline-primary:hover {
+    background-color: #2E5C8A;
+    border-color: #2E5C8A;
+    color: white;
+}
+
+.btn-outline-success {
+    color: #2ECC71;
+    border-color: #2ECC71;
+}
+
+.btn-outline-success:hover {
+    background-color: #2ECC71;
+    border-color: #2ECC71;
+    color: white;
+}
+
+/* Plotly chart modebar - hide by default for cleaner look */
+.modebar {
+    display: none !important;
+}
+
+/* Show modebar on hover */
+.js-plotly-plot:hover .modebar {
+    display: flex !important;
+    opacity: 0.7;
+}
+
+/* Chart container styling */
+.dash-graph {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Loading spinner */
+._dash-loading {
+    margin: auto;
+    color: #2E5C8A;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F5F5F5;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #CCCCCC;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #AAAAAA;
+}
+
+/* Metric card animation */
+.metric-value {
+    transition: color 0.3s ease;
+}
+
+/* Hover effects for interactivity hints */
+.js-plotly-plot {
+    cursor: pointer;
+}
+
+/* Row gaps */
+.row.g-2 > [class*="col-"] {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    .chart-title {
+        font-size: 13px !important;
+    }
+}
+
+@media (max-width: 1200px) {
+    .metric-card {
+        padding: 10px 15px !important;
+    }
+
+    .metric-card .value {
+        font-size: 20px !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .filter-panel,
+    .btn {
+        display: none !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #DDDDDD !important;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .card {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+}
+
+/* Focus states for accessibility */
+.btn:focus,
+.Select-control:focus,
+.form-check-input:focus {
+    outline: 2px solid #5B8DB8;
+    outline-offset: 2px;
+}
+
+/* Tooltip styling */
+.tippy-box {
+    background-color: white !important;
+    color: #333333 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 4px !important;
+}

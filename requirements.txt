@@ -1,0 +1,23 @@
+# Urban Environmental Quality Dashboard - Requirements
+# Python 3.9+ (Python 3.11/3.12 recommended)
+# For Python 3.14: uses latest versions with pre-built wheels
+
+# Core Dashboard
+dash
+dash-bootstrap-components
+plotly
+
+# Data Processing
+pandas
+numpy
+
+# Data Fetching
+requests
+python-dotenv
+
+# Machine Learning (Clustering)
+scikit-learn
+
+# Server
+gunicorn
+flask

@@ -1,0 +1,38 @@
+city,country,country_code,region,lat,lon,population,area_km2,population_density,pop_data_year,green_space_pct,green_space_source,traffic_congestion_pct,traffic_rank_global,traffic_data_year
+Vienna,Austria,AT,Europe,48.2082,16.3738,1911191,414.6,4609.7,2020,49.7,Vienna City Administration 2020,27,82,2022
+Berlin,Germany,DE,Europe,52.52,13.405,3644826,891.7,4087.5,2020,44.0,Berlin Environmental Atlas 2020,30,54,2022
+Paris,France,FR,Europe,48.8566,2.3522,2161000,105.4,20502.8,2020,21.0,European Urban Atlas 2018,36,23,2022
+London,United Kingdom,GB,Europe,51.5074,-0.1278,8982000,1572.0,5713.7,2020,33.0,London Environment Strategy 2018,37,18,2022
+Madrid,Spain,ES,Europe,40.4168,-3.7038,3223334,604.3,5334.0,2020,35.0,European Urban Atlas 2018,25,102,2022
+Rome,Italy,IT,Europe,41.9028,12.4964,2873000,1285.0,2235.8,2020,30.0,European Urban Atlas 2018,39,12,2022
+Amsterdam,Netherlands,NL,Europe,52.3676,4.9041,872680,219.3,3979.4,2020,30.0,European Urban Atlas 2018,26,92,2022
+Stockholm,Sweden,SE,Europe,59.3293,18.0686,975904,188.0,5191.0,2020,40.0,Stockholm Environment 2019,24,115,2022
+Copenhagen,Denmark,DK,Europe,55.6761,12.5683,794128,86.2,9212.6,2020,35.0,Copenhagen Green Accounts 2019,23,125,2022
+Prague,Czech Republic,CZ,Europe,50.0755,14.4378,1335084,496.0,2691.7,2020,40.0,European Urban Atlas 2018,32,41,2022
+Warsaw,Poland,PL,Europe,52.2297,21.0122,1790658,517.2,3462.2,2020,38.0,European Urban Atlas 2018,32,42,2022
+Budapest,Hungary,HU,Europe,47.4979,19.0402,1752286,525.2,3336.4,2020,36.0,European Urban Atlas 2018,35,27,2022
+Brussels,Belgium,BE,Europe,50.8503,4.3517,1218255,162.4,7501.6,2020,32.0,European Urban Atlas 2018,35,28,2022
+Zurich,Switzerland,CH,Europe,47.3769,8.5417,421878,87.9,4799.5,2020,45.0,Zurich Statistics 2020,27,83,2022
+Helsinki,Finland,FI,Europe,60.1699,24.9384,656920,214.3,3065.4,2020,40.0,Helsinki City Plan 2019,22,135,2022
+Belgrade,Serbia,RS,Europe,44.7866,20.4489,1397939,359.9,3884.2,2020,25.0,Belgrade Urban Planning 2019,34,32,2022
+Sarajevo,Bosnia and Herzegovina,BA,Europe,43.8563,18.4131,275524,141.5,1947.2,2020,22.0,Sarajevo Canton Environment 2018,30,55,2022
+Tokyo,Japan,JP,Asia,35.6762,139.6503,13960000,2194.0,6362.8,2020,7.5,Tokyo Metropolitan Gov 2019,32,43,2022
+Seoul,South Korea,KR,Asia,37.5665,126.978,9776000,605.2,16153.3,2020,27.0,Seoul Statistics 2020,37,19,2022
+Singapore,Singapore,SG,Asia,1.3521,103.8198,5686000,728.6,7804.0,2020,47.0,Singapore Green Plan 2019,31,48,2022
+Bangkok,Thailand,TH,Asia,13.7563,100.5018,10539000,1568.7,6718.3,2020,11.0,WHO Urban Health 2016,53,2,2022
+Delhi,India,IN,Asia,28.7041,77.1025,32941000,1484.0,22197.4,2020,12.0,Delhi Master Plan 2020,39,11,2022
+Mumbai,India,IN,Asia,19.076,72.8777,20668000,603.0,34275.3,2020,15.0,Mumbai Environmental Status 2019,53,1,2022
+Beijing,China,CN,Asia,39.9042,116.4074,21540000,16411.0,1312.5,2020,44.4,Beijing Statistics 2020,40,10,2022
+Shanghai,China,CN,Asia,31.2304,121.4737,28516000,6341.0,4497.1,2020,38.0,Shanghai Statistics 2020,35,26,2022
+New York,United States,US,Americas,40.7128,-74.006,8336817,783.8,10636.4,2020,27.0,NYC Parks 2020,32,44,2022
+Los Angeles,United States,US,Americas,34.0522,-118.2437,3979576,1213.9,3278.3,2020,15.0,LA City Planning 2019,34,31,2022
+Toronto,Canada,CA,Americas,43.6532,-79.3832,2930000,630.2,4649.3,2020,28.0,Toronto Green Standard 2020,36,22,2022
+Mexico City,Mexico,MX,Americas,19.4326,-99.1332,21672000,1485.0,14593.9,2020,18.0,CDMX Environment 2019,46,4,2022
+Sao Paulo,Brazil,BR,Americas,-23.5505,-46.6333,12325232,1521.1,8102.8,2020,20.0,Sao Paulo SVMA 2019,38,14,2022
+Buenos Aires,Argentina,AR,Americas,-34.6037,-58.3816,2891082,203.0,14241.8,2020,22.0,Buenos Aires Statistics 2019,38,15,2022
+Cairo,Egypt,EG,Africa,30.0444,31.2357,21323000,1100.0,19384.5,2020,5.0,GOPP Egypt 2016,42,7,2022
+Johannesburg,South Africa,ZA,Africa,-26.2041,28.0473,5635127,1645.0,3425.6,2020,24.0,Joburg City Parks 2019,33,36,2022
+Cape Town,South Africa,ZA,Africa,-33.9249,18.4241,4618000,2461.0,1876.5,2020,32.0,Cape Town Environment 2019,32,45,2022
+Sydney,Australia,AU,Oceania,-33.8688,151.2093,5312163,12368.0,429.5,2020,46.0,NSW Planning 2019,31,47,2022
+Melbourne,Australia,AU,Oceania,-37.8136,144.9631,5078193,9993.0,508.2,2020,48.0,Melbourne Green Space 2019,32,40,2022
+Auckland,New Zealand,NZ,Oceania,-36.8485,174.7633,1571718,559.2,2810.7,2020,55.0,Auckland Council 2019,29,63,2022

@@ -1,0 +1,5 @@
+city,country,country_code,region,station_id,station_name,sensor_id,parameter,value,date,lat,lon
+Mexico City,Mexico,MX,Americas,348,Santa Fe,5079222,pm10,57.0,2022-10-04,19.3573,-99.26279999999998
+Mexico City,Mexico,MX,Americas,348,Santa Fe,5079223,pm25,39.0,2022-10-04,19.3573,-99.26279999999998
+Mexico City,Mexico,MX,Americas,348,Santa Fe,5079224,no2,0.034,2022-10-04,19.3573,-99.26279999999998
+Mexico City,Mexico,MX,Americas,348,Santa Fe,5079227,o3,0.075,2022-10-04,19.3573,-99.26279999999998

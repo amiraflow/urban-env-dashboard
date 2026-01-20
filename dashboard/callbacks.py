@@ -116,10 +116,21 @@ def register_callbacks(app, df_summary, df_timeseries):
                 (df_ts_filtered['year'] <= year_range[1])
             ]
 
-        # Ensure Vienna is always included for reference
+        # Ensure Vienna is always included for reference (both summary and timeseries)
         vienna_data = df_summary[df_summary['city'] == 'Vienna']
         if len(df_filtered[df_filtered['city'] == 'Vienna']) == 0:
             df_filtered = pd.concat([df_filtered, vienna_data], ignore_index=True)
+
+        # Also ensure Vienna's timeseries data is always included
+        vienna_ts = df_timeseries[df_timeseries['city'] == 'Vienna']
+        if len(df_ts_filtered[df_ts_filtered['city'] == 'Vienna']) == 0:
+            # Apply year filter to Vienna data too
+            if year_range:
+                vienna_ts = vienna_ts[
+                    (vienna_ts['year'] >= year_range[0]) &
+                    (vienna_ts['year'] <= year_range[1])
+                ]
+            df_ts_filtered = pd.concat([df_ts_filtered, vienna_ts], ignore_index=True)
 
         # Prepare selected cities list for brushing
         selected = selected_cities if selected_cities else []

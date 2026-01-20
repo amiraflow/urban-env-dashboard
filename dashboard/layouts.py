@@ -31,7 +31,7 @@ def create_header():
         # Brushing & Linking explanation
         html.P([
             html.Strong("Interactive: ", style={'color': COLORS['accent']}),
-            "This dashboard supports coordinated brushing & linking — selecting cities, clusters, or points in any chart ",
+            "Selecting cities, clusters, or points in any chart ",
             "immediately highlights the same data across all other visualizations."
         ], style={
             'fontSize': '12px',

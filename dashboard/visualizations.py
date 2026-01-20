@@ -206,36 +206,35 @@ def create_time_series(df_timeseries, df_summary, selected_cities=None):
     df_ts = df_timeseries.copy()
     df_ts['date'] = pd.to_datetime(df_ts['date'])
 
-    # Global average
-    global_avg = df_ts.groupby('date')['pm25'].mean().reset_index()
-
-    # Cluster average (Vienna's cluster)
-    cluster_cities = df_summary[df_summary['cluster'] == vienna_cluster]['city'].tolist()
-    cluster_data = df_ts[df_ts['city'].isin(cluster_cities)]
-    cluster_avg = cluster_data.groupby('date')['pm25'].mean().reset_index()
-
     # Vienna data
     vienna_data = df_ts[df_ts['city'] == 'Vienna']
 
-    # Add global average (bottom layer) - more visible color
-    fig.add_trace(go.Scatter(
-        x=global_avg['date'],
-        y=global_avg['pm25'],
-        mode='lines',
-        name='Global Average',
-        line=dict(color='#7f8c8d', width=2, dash='dash'),  # Darker gray, thicker line
-        hovertemplate='Global Avg: %{y:.1f} μg/m³<extra></extra>'
-    ))
+    # Regional/filtered average (all cities in current filter except Vienna)
+    other_cities_data = df_ts[df_ts['city'] != 'Vienna']
+    if len(other_cities_data) > 0:
+        regional_avg = other_cities_data.groupby('date')['pm25'].mean().reset_index()
+        fig.add_trace(go.Scatter(
+            x=regional_avg['date'],
+            y=regional_avg['pm25'],
+            mode='lines',
+            name='Regional Average',
+            line=dict(color='#7f8c8d', width=2, dash='dash'),
+            hovertemplate='Regional Avg: %{y:.1f} μg/m³<extra></extra>'
+        ))
 
-    # Add cluster average
-    fig.add_trace(go.Scatter(
-        x=cluster_avg['date'],
-        y=cluster_avg['pm25'],
-        mode='lines',
-        name=f'Cluster Avg ({CLUSTER_NAMES.get(vienna_cluster, "Vienna\'s")})',
-        line=dict(color=COLORS['primary'], width=2),
-        hovertemplate='Cluster Avg: %{y:.1f} μg/m³<extra></extra>'
-    ))
+    # Cluster average (Vienna's cluster cities that are in the current filter)
+    cluster_cities = df_summary[df_summary['cluster'] == vienna_cluster]['city'].tolist()
+    cluster_data = df_ts[df_ts['city'].isin(cluster_cities)]
+    if len(cluster_data) > 0:
+        cluster_avg = cluster_data.groupby('date')['pm25'].mean().reset_index()
+        fig.add_trace(go.Scatter(
+            x=cluster_avg['date'],
+            y=cluster_avg['pm25'],
+            mode='lines',
+            name=f'Cluster Avg ({CLUSTER_NAMES.get(vienna_cluster, "Clean & Green")})',
+            line=dict(color=COLORS['primary'], width=2),
+            hovertemplate='Cluster Avg: %{y:.1f} μg/m³<extra></extra>'
+        ))
 
     # Add selected cities (if any)
     if selected_cities:
@@ -323,7 +322,7 @@ def create_cluster_boxplot(df, indicator='pm25', selected_cluster=None):
             marker_color=CLUSTER_COLORS[cluster_id],
             opacity=opacity,
             boxpoints='outliers',
-            hoverinfo='skip',  # Disable default hover on box
+            hoverinfo='name',  # Show only cluster name on hover, keeps click working
         ))
 
     # Mark Vienna's position
@@ -562,13 +561,17 @@ def create_city_comparison(df, comparison_cities=None, indicator='pm25'):
         'air_quality_index': 'Air Quality Index',
     }
 
-    # Default: Vienna + top 5 peers from same cluster
+    # Default: Show all filtered cities (up to 8) sorted by indicator
     if comparison_cities is None or len(comparison_cities) == 0:
-        vienna_cluster = df[df['city'] == 'Vienna']['cluster'].values[0]
-        cluster_cities = df[df['cluster'] == vienna_cluster].sort_values(indicator)
-        comparison_cities = cluster_cities['city'].head(6).tolist()
-        if 'Vienna' not in comparison_cities:
-            comparison_cities = ['Vienna'] + comparison_cities[:5]
+        # Show top/bottom cities from current filter, always include Vienna
+        sorted_df = df.sort_values(indicator)
+        if len(sorted_df) <= 8:
+            comparison_cities = sorted_df['city'].tolist()
+        else:
+            # Take top 7 + Vienna if not in top 7
+            comparison_cities = sorted_df['city'].head(7).tolist()
+            if 'Vienna' not in comparison_cities:
+                comparison_cities.append('Vienna')
 
     # Filter to comparison cities and sort
     compare_df = df[df['city'].isin(comparison_cities)].sort_values(indicator)
@@ -592,6 +595,7 @@ def create_city_comparison(df, comparison_cities=None, indicator='pm25'):
         hovertemplate='<b>%{y}</b><br>' +
                       f'{indicator_labels.get(indicator, indicator)}: %{{x:.1f}}<extra></extra>',
         customdata=compare_df['city'],
+        showlegend=False,  # Hide legend for bar chart
     ))
 
     layout = get_chart_layout(height=280)
